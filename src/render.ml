@@ -30,13 +30,15 @@ type bodies = {
     | _ -> raise (Failure "Does not contain three floats")
   
 let point_json  p ={
-  pos = pos_json (to_list (member "position" p));
+  pos = pos_json (to_list (member "point" p));
 }
 
-let line_json l = {
-  a = pos_json (to_list (member "position" l));
-  b = pos_json (to_list (member "position" l));
-}
+let line_json l = 
+
+  let line = (to_list (member "line" l)) in
+  match line with
+  | [ a; b; c; d; e; f] -> {a = pos_json [a; b; c]; b = pos_json [d; e; f]}
+  | _ -> raise (Failure "Does not contain six floats")
 
 let body_json j =
   {
