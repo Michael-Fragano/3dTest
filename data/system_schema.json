@@ -1,0 +1,46 @@
+{
+    "type": "object",
+    "properties": {
+        "bodies": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "points" : {
+                        "type" : "array",
+                        "items" : {
+                            "type": "object",
+                            "properties" : {
+                                "point" : {
+                                    "type" : "array",
+                                    "items" : {
+                                        "type" : "number"
+                                    },
+                                    "minItems": 3,
+                                    "maxItems" : 3
+                                }
+                            }
+                        }
+                    },
+                    "lines" : {
+                        "type" : "array",
+                        "items" : {
+                            "type" : "object",
+                            "properties" : {
+                                "line" : {
+                                    "type" : "array",
+                                    "items" : {
+                                        "type" : "number"
+                                    },
+                                    "minItems": 6,
+                                    "maxItems" : 6
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

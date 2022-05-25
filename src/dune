@@ -1,0 +1,6 @@
+(include_subdirs unqualified)
+
+(library
+ (name visual)
+ (public_name Visual)
+ (libraries graphics yojson ANSITerminal))
