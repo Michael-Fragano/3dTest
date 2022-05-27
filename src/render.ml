@@ -135,17 +135,26 @@ let rec draw_points camera (points: point list) body= (
     draw_points camera t body
     else 
     fill_circle (int_of_float ((400. *.  (x /. maxr)) +. 400.)) (int_of_float ((400. *.  (y /. maxr)) +. 400.)) 3;
-    print_endline "\n x: ";
-    print_int (int_of_float ((400. *.  (x /. maxr)) +. 400.));
-    print_endline "\n y: ";
-    print_int (int_of_float ((400. *.  (y /. maxr)) +. 400.));
     draw_points camera t body
 )
 
-let rec draw_lines camera points body = (
-  match points with
+let rec draw_lines camera (lines : line list) body = (
+  match lines with
   | [] -> ()
   | h :: t -> 
+    let maxr = (camfov camera /. 2.) in
+    let arpos = rel_pos camera h.a body in
+    let ay = atan (arpos.z /. arpos.y) in
+    let ax = atan (arpos.x/. arpos.y) in
+
+    let brpos = rel_pos camera h.b body in
+    let by = atan (brpos.z /. brpos.y) in
+    let bx = atan (brpos.x/. brpos.y) in
+    (**TODO: Add way to check if no part of a line crosses camera, and skip drawing it.*)
+    draw_poly_line [|
+      ((int_of_float ((400. *.  (ax /. maxr)) +. 400.)), (int_of_float ((400. *.  (ay /. maxr)) +. 400.)));
+      ((int_of_float ((400. *.  (bx /. maxr)) +. 400.)), (int_of_float ((400. *.  (by /. maxr)) +. 400.)));
+    |];
     draw_lines camera t body
 )
 
