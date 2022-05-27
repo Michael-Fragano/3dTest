@@ -10,6 +10,9 @@ type rotation
 val set_camera : position -> rotation -> float -> camera
 (**Set the position, rotation, and field of view of the camera.*)
 
+val set_all_camera : float -> float -> float -> float -> float -> float -> float -> camera
+(**Set the position, rotation, and field of view of the camera from floats for x y z position and x y z rotation.*)
+
 val default_camera : camera
 (**Creates camera object at point (0, 0, 0) and rotation (0, 0, 0) with FOV of 60 degrees.*)
 

@@ -1,6 +1,7 @@
 open Graphics
 open Yojson.Basic.Util
 open Camera
+open Status
 
 type position = {
   x : float;
@@ -173,13 +174,28 @@ let render bodies camera =
   synchronize ();
   draw_bodies camera true bodies.bods
 
+let update_cam cam status : camera = 
+  if (key_state 'a' status = Pressed) || (key_state 'a' status = Held)  then (set_all_camera (camposx cam -. 5.) (camposy cam) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
+  else if (key_state 'd' status = Pressed) || (key_state 'd' status = Held)  then (set_all_camera (camposx cam +. 5.) (camposy cam) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
+  else if (key_state 'w' status = Pressed) || (key_state 'w' status = Held)  then (set_all_camera (camposx cam) (camposy cam +. 5.) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
+  else if (key_state 's' status = Pressed) || (key_state 's' status = Held)  then (set_all_camera (camposx cam) (camposy cam -. 5.) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
+  else if (key_state ' ' status = Pressed) || (key_state ' ' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam +. 5.) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
+  else if (key_state 'z' status = Pressed) || (key_state 'z' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam -. 5.) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
+  else if (key_state 'j' status = Pressed) || (key_state 'j' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam +. 0.03) (camfov cam))
+  else if (key_state 'l' status = Pressed) || (key_state 'l' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam -. 0.03) (camfov cam))
+  else if (key_state 'i' status = Pressed) || (key_state 'i' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam +. 0.03) (camroty cam) (camrotz cam ) (camfov cam))
+  else if (key_state 'k' status = Pressed) || (key_state 'k' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam -. 0.03) (camroty cam) (camrotz cam ) (camfov cam))
+ 
+  else cam
 
-let rec main_loop bodies time (camera: Camera.camera) =
+let rec main_loop bodies time (camera: Camera.camera) status =
   render bodies camera;
+  let new_camera = update_cam camera status in 
+  let new_status = poll_input status in
   let new_time = Unix.gettimeofday () in
   let time_left = (1. /. 60.) -. new_time +. time in
   if time_left > 0. then Unix.sleepf time_left;
-  main_loop bodies (new_time +. time_left) camera
+  main_loop bodies (new_time +. time_left) new_camera new_status
 
 
 let start_window json =
@@ -188,5 +204,5 @@ let start_window json =
     |> Yojson.Basic.from_file |> from_json in
   try
   init();
-  (main_loop bodies (Unix.gettimeofday ()) Camera.default_camera )
+  (main_loop bodies (Unix.gettimeofday ()) Camera.default_camera ) (Status.default ())
 with Graphics.Graphic_failure _ -> Graphics.close_graph ()

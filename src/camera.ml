@@ -24,6 +24,13 @@ let set_camera p r f : camera=
     fov = f
   }
 
+let set_all_camera x y z xr yr zr f : camera =
+  {
+    pos = {x = x; y = y; z = z};
+    rot = {x = xr; y = yr; z = zr};
+    fov = f
+  }
+
 (**Rotation (0, 0, 0) faces the camera in the +y direction*)
 let default_camera : camera =
   {
