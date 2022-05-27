@@ -179,6 +179,7 @@ let render bodies camera =
   draw_bodies camera true bodies.bods
 
 let update_cam cam status : camera = 
+
   if (key_state 'a' status = Pressed) || (key_state 'a' status = Held)  then (set_all_camera (camposx cam -. 5.) (camposy cam) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
   else if (key_state 'd' status = Pressed) || (key_state 'd' status = Held)  then (set_all_camera (camposx cam +. 5.) (camposy cam) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
   else if (key_state 'w' status = Pressed) || (key_state 'w' status = Held)  then (set_all_camera (camposx cam) (camposy cam +. 5.) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam) (camfov cam))
@@ -191,7 +192,8 @@ let update_cam cam status : camera =
   else if (key_state 'k' status = Pressed) || (key_state 'k' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam -. 0.03) (camroty cam) (camrotz cam ) (camfov cam))
   else if (key_state 'u' status = Pressed) || (key_state 'u' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam +. 0.03) (camrotz cam ) (camfov cam))
   else if (key_state 'o' status = Pressed) || (key_state 'o' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam -. 0.03) (camrotz cam ) (camfov cam))
-  
+  else if (key_state ',' status = Pressed) || (key_state ',' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam ) (camfov cam -. 0.05))
+  else if (key_state '.' status = Pressed) || (key_state '.' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam ) (camfov cam +. 0.05))  
   else cam
 
 let rec update_bods bodies status : bodies =

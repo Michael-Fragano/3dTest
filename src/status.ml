@@ -26,6 +26,8 @@ let default () =
         ('u', Idle);
         ('o', Idle);
         ('g', Idle);
+        (',', Idle);
+        ('.', Idle);
       ]
   }
 

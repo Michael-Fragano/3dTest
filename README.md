@@ -141,4 +141,7 @@ space bar : Move in the +z direction
 `o` : rotate in the +y direction
 `u` : rotate in the -y direction
 
+`,` : zoom in
+`.` : zoom out
+
 `g` : rotate any models in the +z direction
