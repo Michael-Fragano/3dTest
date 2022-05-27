@@ -1,9 +1,16 @@
 open Graphics
 open Yojson.Basic.Util
+open Camera
 
 type position = {
   x : float;
   y : float;
+  z : float;
+}
+
+type rotation = {
+  x : float;
+  y : float; 
   z : float;
 }
 
@@ -17,6 +24,8 @@ type line = {
 }
 
 type body = {
+  pos : position;
+  rot : rotation;
   points : point list;
   lines : line list;
 }
@@ -24,11 +33,17 @@ type body = {
 type bodies = {
   bods : body list}
 
+ (**Start of json functions*) 
   let pos_json p : position =
     match p with
     | [ h; m; t ] -> { x = to_float h; y = to_float m; z = to_float t }
     | _ -> raise (Failure "Does not contain three floats")
   
+  let rot_json r : rotation = 
+    match r with
+    | [ h; m; t ] -> { x = to_float h; y = to_float m; z = to_float t }
+    | _ -> raise (Failure "Does not contain three floats")
+
 let point_json  p ={
   pos = pos_json (to_list (member "point" p));
 }
@@ -42,6 +57,8 @@ let line_json l =
 
 let body_json j =
   {
+    pos = pos_json (to_list (member "position" j));
+    rot = rot_json (to_list (member "rotation" j));
     points = List.map point_json  (to_list (member "points" j));
     lines = List.map line_json  (to_list (member "lines" j));
   }
@@ -50,29 +67,117 @@ let body_json j =
     bods = List.map body_json (to_list (member "bodies" json))
   }
 
+  (**End of json functions*)  
+
+let make_pos x y z : position = 
+  {
+    x = x;
+    y = y;
+    z = z
+  }
+
+  let make_rot x y z : rotation = 
+    {
+      x = x;
+      y = y;
+      z = z
+    }
 
 let init () =
-  open_graph " 1000x1000";
+  open_graph " 800x800";
   set_window_title "3D Render Testing";
   auto_synchronize false
 
-let render bodies =
-  failwith "unimplemented"
 
-let rec main_loop bodies time =
-  render bodies;
+
+let rel_pos (camera : Camera.camera) (pos : position) (body : body) = (
+  let cosx = cos body.rot.x in
+  let sinx = sin body.rot.x in
+  let cosy = cos body.rot.y in
+  let siny = sin body.rot.y in
+  let cosz = cos body.rot.z in
+  let sinz = sin body.rot.z in
+
+  let ccosx = cos (-.camrotx camera) in
+  let csinx = sin (-.camrotx camera) in
+  let ccosy = cos (-.camroty camera) in
+  let csiny = sin(-.camroty camera) in
+  let ccosz = cos (-.camrotz camera) in
+  let csinz = sin (-.camrotz camera) in
+
+  (**handle body rotation*)
+  let rotx = {x = pos.x; y = pos.y *. cosx -. pos.z *. sinx ; z = pos.z *. cosx +. pos.y *. sinx} in
+  let roty = {x = rotx.x *. cosy -. rotx.z *. siny; y = rotx.y; z = rotx.z *. cosy +. rotx.x *. siny} in
+  let rotz = {x = roty.x *. cosz -. roty.y *. sinz; y = roty.y *. cosz +. roty.x *. sinz; z = roty.z} in
+
+  (**Find global position*)
+  let pos1 = { x = (rotz.x +. body.pos.x); y = (rotz.y +. body.pos.y); z = (rotz.z +. body.pos.z)} in
+
+  (**Find position relative to camera's global positioin*)
+  let cpos = {x = (pos1.x -. camposx camera); y = (pos1.y -. camposy camera); z = (pos1.z -. camposz camera)} in
+
+  (**Find position relative to camera's rotation*)
+  let crotx = {x = cpos.x; y = cpos.y *. ccosx -. cpos.z *. csinx ; z = cpos.z *. ccosx +. cpos.y *. csinx} in
+  let croty = {x = crotx.x *. ccosy -. crotx.z *. csiny; y = crotx.y; z = crotx.z *. ccosy +. crotx.x *. csiny} in
+  {x = croty.x *. ccosz -. croty.y *. csinz; y = croty.y *. ccosz +. croty.x *. csinz; z = croty.z}
+)
+
+
+let rec draw_points camera (points: point list) body= (
+  match points with
+  | [] -> ()
+  | h :: t -> 
+    let maxr = (camfov camera /. 2.) in
+    let rpos = rel_pos camera h.pos body in
+    let y = atan (rpos.z /. rpos.y) in
+    let x = atan (rpos.x/. rpos.y) in
+    if (y > maxr) || (x > maxr) then
+    draw_points camera t body
+    else 
+    fill_circle (int_of_float ((400. *.  (x /. maxr)) +. 400.)) (int_of_float ((400. *.  (y /. maxr)) +. 400.)) 3;
+    print_endline "\n x: ";
+    print_int (int_of_float ((400. *.  (x /. maxr)) +. 400.));
+    print_endline "\n y: ";
+    print_int (int_of_float ((400. *.  (y /. maxr)) +. 400.));
+    draw_points camera t body
+)
+
+let rec draw_lines camera points body = (
+  match points with
+  | [] -> ()
+  | h :: t -> 
+    draw_lines camera t body
+)
+
+let rec draw_bodies camera clear = function
+  | [] -> ()
+  | h :: t -> 
+    if clear then set_color background
+    else set_color (0x000000);
+    draw_points camera h.points h;
+    draw_lines camera h.lines h;
+    draw_bodies camera clear t
+
+
+let render bodies camera =
+  draw_bodies camera false bodies.bods;
+  synchronize ();
+  draw_bodies camera true bodies.bods
+
+
+let rec main_loop bodies time (camera: Camera.camera) =
+  render bodies camera;
   let new_time = Unix.gettimeofday () in
   let time_left = (1. /. 60.) -. new_time +. time in
   if time_left > 0. then Unix.sleepf time_left;
-  main_loop bodies (new_time +. time_left)
+  main_loop bodies (new_time +. time_left) camera
 
 
 let start_window json =
   let bodies =
     "data/" ^ json ^ ".json"
-    |> Yojson.Basic.from_file |> from_json
-  in
+    |> Yojson.Basic.from_file |> from_json in
   try
   init();
-  main_loop bodies (Unix.gettimeofday ())
+  (main_loop bodies (Unix.gettimeofday ()) Camera.default_camera )
 with Graphics.Graphic_failure _ -> Graphics.close_graph ()
