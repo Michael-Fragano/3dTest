@@ -185,7 +185,9 @@ let update_cam cam status : camera =
   else if (key_state 'l' status = Pressed) || (key_state 'l' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam) (camrotz cam -. 0.03) (camfov cam))
   else if (key_state 'i' status = Pressed) || (key_state 'i' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam +. 0.03) (camroty cam) (camrotz cam ) (camfov cam))
   else if (key_state 'k' status = Pressed) || (key_state 'k' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam -. 0.03) (camroty cam) (camrotz cam ) (camfov cam))
- 
+  else if (key_state 'u' status = Pressed) || (key_state 'u' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam +. 0.03) (camrotz cam ) (camfov cam))
+  else if (key_state 'o' status = Pressed) || (key_state 'o' status = Held)  then (set_all_camera (camposx cam) (camposy cam ) (camposz cam) (camrotx cam) (camroty cam -. 0.03) (camrotz cam ) (camfov cam))
+  
   else cam
 
 let rec main_loop bodies time (camera: Camera.camera) status =

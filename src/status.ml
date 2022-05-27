@@ -23,6 +23,8 @@ let default () =
         ('j', Idle);
         ('k', Idle);
         ('l', Idle);
+        ('u', Idle);
+        ('o', Idle);
       ]
   }
 
