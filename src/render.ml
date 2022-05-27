@@ -130,6 +130,8 @@ let rec draw_points camera (points: point list) body= (
   | h :: t -> 
     let maxr = (camfov camera /. 2.) in
     let rpos = rel_pos camera h.pos body in
+    if rpos.y < 0. then 
+      draw_points camera t body else
     let y = atan (rpos.z /. rpos.y) in
     let x = atan (rpos.x/. rpos.y) in
     if (y > maxr) || (x > maxr) then
@@ -151,7 +153,9 @@ let rec draw_lines camera (lines : line list) body = (
     let brpos = rel_pos camera h.b body in
     let by = atan (brpos.z /. brpos.y) in
     let bx = atan (brpos.x/. brpos.y) in
-    (**TODO: Add way to check if no part of a line crosses camera, and skip drawing it.*)
+    if arpos.y < 0. || brpos.y < 0. then 
+      draw_lines camera t body else
+    (**TODO: Add way to check if no part of a line crosses camera, and skip drawing it. currently deletes in some cases*)
     draw_poly_line [|
       ((int_of_float ((400. *.  (ax /. maxr)) +. 400.)), (int_of_float ((400. *.  (ay /. maxr)) +. 400.)));
       ((int_of_float ((400. *.  (bx /. maxr)) +. 400.)), (int_of_float ((400. *.  (by /. maxr)) +. 400.)));
@@ -190,14 +194,27 @@ let update_cam cam status : camera =
   
   else cam
 
+let rec update_bods bodies status : bodies =
+  let bds = bodies.bods in
+  let rec bods b s = 
+  match b with 
+    | [] -> []
+    | h :: t ->  
+     if (key_state 'g' status = Pressed) || (key_state 'g' status = Held) then
+      {pos = h.pos; rot = {x = h.rot.x; y = h.rot.y; z = (h.rot.z +. 0.05)}; points = h.points; lines = h.lines} :: (bods t s)
+    else h :: (bods t s)
+  in
+  {bods = bods bds status}
+
 let rec main_loop bodies time (camera: Camera.camera) status =
   render bodies camera;
-  let new_camera = update_cam camera status in 
+  let new_camera = update_cam camera status in
+  let new_bodies = update_bods bodies status in 
   let new_status = poll_input status in
   let new_time = Unix.gettimeofday () in
   let time_left = (1. /. 60.) -. new_time +. time in
   if time_left > 0. then Unix.sleepf time_left;
-  main_loop bodies (new_time +. time_left) new_camera new_status
+  main_loop new_bodies (new_time +. time_left) new_camera new_status
 
 
 let start_window json =

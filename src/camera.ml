@@ -35,7 +35,7 @@ let set_all_camera x y z xr yr zr f : camera =
 let default_camera : camera =
   {
     pos = {x = 0.; y = 0.; z = 0.};
-    rot = {x = 0.; y = 0.; z = 0.};
+    rot = {x = 0.; y = 0.; z = 3.14159};
     fov = 1.0472
   }
 
