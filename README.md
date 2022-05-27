@@ -4,7 +4,7 @@ This is a simple wireframe renderer I made in OCaml, I did not follow
 many instructions for this, just doing what seems logically right to 
 me, so it may not be the mot effecient.
 
-Much of the code in status.ml, and installation instruction in this 
+Much of the code in status.ml, and the installation instructions in this 
 README, is borrowed from what Seth Norman wrote in our 
 3110-Gravity-Final project. 
 
