@@ -1,4 +1,5 @@
 # Introduction
+Program by Michael Fragano
 
 This is a simple wireframe renderer I made in OCaml, I did not follow 
 many instructions for this, just doing what seems logically right to 
